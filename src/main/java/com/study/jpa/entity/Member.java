@@ -1,19 +1,28 @@
 package com.study.jpa.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "MEMBER")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
     @Id
-    @Column(name = "ID")
-    private String id;
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "NAME")
+    @Column(name = "sno")
+    private Long sno;
+
+    @Column(name = "name")
     private String username;
 
-    private Integer age;
+    public Member(String username) {
+        this.username = username;
+    }
 }
