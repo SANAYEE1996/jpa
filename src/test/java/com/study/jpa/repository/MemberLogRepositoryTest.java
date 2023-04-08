@@ -2,6 +2,7 @@ package com.study.jpa.repository;
 
 import com.study.jpa.entity.MemberLog;
 import com.study.jpa.tool.TimeFormat;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,10 +20,12 @@ public class MemberLogRepositoryTest {
     private MemberLogRepository memberLogRepository;
 
     @Test
+    @DisplayName("세션 유지하는지 테스트")
     void remainCacheTest(){
         MemberLog memberLog = new MemberLog(100L, LocalDateTime.now().format(TimeFormat.memberBulkRegisterDateFormat));
         memberLogRepository.save(memberLog);
         System.out.println(memberLog.getId());
         assertTrue(memberLog.getId() != null);
     }
+
 }

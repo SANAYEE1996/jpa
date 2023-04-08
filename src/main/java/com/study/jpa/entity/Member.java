@@ -22,7 +22,11 @@ public class Member {
     @Column(name = "name")
     private String username;
 
-    public Member(String username) {
+    @Column(name = "count")
+    private Long count;
+
+    public Member(String username, Long count) {
         this.username = username;
+        this.count = count;
     }
 }

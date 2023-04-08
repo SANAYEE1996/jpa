@@ -1,6 +1,7 @@
 package com.study.jpa.repository;
 
 import com.study.jpa.entity.Member;
+import com.study.jpa.entity.MemberLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -16,15 +17,17 @@ public class MemberBulkRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Transactional
-    public void saveAll(List<Member> memberList){
-        String sql = "INSERT INTO MEMBER (name) "+
-                     "VALUES (?) ";
+    public void saveAll(List<Member> memberList, MemberLog memberLog){
+        String sql = "INSERT INTO MEMBER (sno, name, count) "+
+                     "VALUES (?, ?, ?) ";
 
         jdbcTemplate.batchUpdate(sql,
                                  memberList,
                                  memberList.size(),
                                  (PreparedStatement ps, Member member) -> {
-                                    ps.setString(1, member.getUsername());
+                                    ps.setLong(1, memberLog.getId());
+                                     ps.setString(2, member.getUsername());
+                                     ps.setLong(3, member.getCount());
                                  });
 
     }
