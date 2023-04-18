@@ -18,6 +18,10 @@ public class Product {
     @Column(name = "quantity")
     private int quantity;
 
+    public void minusQuantity(int quantity){
+        this.quantity -= quantity;
+    }
+
     public Product(int quantity) {
         this.quantity = quantity;
     }
