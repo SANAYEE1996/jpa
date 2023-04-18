@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Entity(name = "product")
 @Getter
 @NoArgsConstructor
-public class product {
+public class Product {
 
     @Id
     @Column(name = "id")
@@ -17,4 +17,8 @@ public class product {
 
     @Column(name = "quantity")
     private int quantity;
+
+    public Product(int quantity) {
+        this.quantity = quantity;
+    }
 }
