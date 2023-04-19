@@ -1,5 +1,8 @@
 package com.study.jpa.entity;
 
+import com.study.jpa.exception.QuantityException;
+import com.study.jpa.exception.QuantityInsufficientException;
+import com.study.jpa.exception.QuantitySoldOutException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,7 +21,13 @@ public class Product {
     @Column(name = "quantity")
     private int quantity;
 
-    public void minusQuantity(int quantity){
+    public void minusQuantity(int quantity) throws QuantityException {
+        if(this.quantity - quantity < 0){
+            throw new QuantityInsufficientException("수량 초과 입니다.");
+        }
+        else if(this.quantity == 0){
+            throw new QuantitySoldOutException("품절입니다.");
+        }
         this.quantity -= quantity;
     }
 

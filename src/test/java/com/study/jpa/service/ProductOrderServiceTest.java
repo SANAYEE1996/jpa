@@ -28,7 +28,7 @@ public class ProductOrderServiceTest {
 
     @Test
     @DisplayName("상품 주문 동시성 테스트")
-    public void orderProductTest(){
+    public void orderProductTest() throws InterruptedException {
         log.info("order product 동시성 테스트 시작");
 
         log.info("order product 동시성 테스트 준비");
@@ -50,6 +50,8 @@ public class ProductOrderServiceTest {
             productOrderService.productOrder(twoOrder);
             latch.countDown();
         });
+
+        latch.await();
 
         log.info("makeReservation 동시성 테스트 결과 검증");
         List<Orders> ordersList = ordersRepository.findAll();
