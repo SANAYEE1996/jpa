@@ -32,8 +32,10 @@ public class ProductOrderService {
             ordersRepository.save(orders);
         }catch(NullPointerException npe){
             log.error("해당 상품은 존재하지 않습니다.");
-        }catch(QuantityInsufficientException | QuantitySoldOutException e){
-            log.error(e.getMessage());
+        }catch(QuantitySoldOutException e){
+            log.error("품절 입니다.");
+        }catch(QuantityInsufficientException e){
+            log.error("현재 그만큼의 재고가 업습니다 이사람아");
         }
     }
 

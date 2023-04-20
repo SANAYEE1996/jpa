@@ -22,11 +22,11 @@ public class Product {
     private int quantity;
 
     public void minusQuantity(int quantity) throws QuantityException {
-        if(this.quantity - quantity < 0){
-            throw new QuantityInsufficientException("수량 초과 입니다.");
+        if(this.quantity == 0){
+            throw new QuantitySoldOutException();
         }
-        else if(this.quantity == 0){
-            throw new QuantitySoldOutException("품절입니다.");
+        else if(this.quantity - quantity < 0){
+            throw new QuantityInsufficientException();
         }
         this.quantity -= quantity;
     }
