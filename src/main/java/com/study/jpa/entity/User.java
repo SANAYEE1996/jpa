@@ -1,50 +1,52 @@
 package com.study.jpa.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity(name = "user")
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "email")
     private String userEmail;
 
     @Column(name = "password")
     private String userPassword;
 
-    public User(Long id, String userEmail, String userPassword) {
-        this.id = id;
-        this.userEmail = userEmail;
-        this.userPassword = userPassword;
-    }
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Builder.Default
+    private List<String> roles = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add(()-> "계정별 등록할 권한");
-        return collection;
+        return this.roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
 
     @Override
     public String getPassword() {
-        return null;
+        return userEmail;
     }
 
     @Override
     public String getUsername() {
-        return null;
+        return userPassword;
     }
 
     @Override
