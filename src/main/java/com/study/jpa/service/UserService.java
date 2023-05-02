@@ -4,6 +4,8 @@ import com.study.jpa.entity.TokenInfo;
 import com.study.jpa.jwt.JwtTokenProvider;
 import com.study.jpa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -15,6 +17,8 @@ import javax.transaction.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class UserService {
+
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
 
@@ -33,6 +37,7 @@ public class UserService {
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication);
+        log.info("authentication getAuthorities: {}", authentication.getAuthorities());
 
         return tokenInfo;
     }
