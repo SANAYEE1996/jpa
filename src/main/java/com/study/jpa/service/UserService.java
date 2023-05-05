@@ -1,6 +1,7 @@
 package com.study.jpa.service;
 
 import com.study.jpa.entity.TokenInfo;
+import com.study.jpa.entity.User;
 import com.study.jpa.jwt.JwtTokenProvider;
 import com.study.jpa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,14 +10,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
@@ -40,6 +43,25 @@ public class UserService {
         log.info("authentication getAuthorities: {}", authentication.getAuthorities());
 
         return tokenInfo;
+    }
+
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        User user = userRepository.findByUserEmail(username).orElseThrow(NullPointerException::new);
+
+        log.info("load user : {}", user.getUsername());
+
+        return user;
+    }
+
+    public void saveUser(User user){
+        if(!userRepository.existsByUserEmail(user.getUsername())){
+            userRepository.save(user);
+            return;
+        }
+        throw new RuntimeException("이미 등록된 이메일 입니다.");
     }
 
 }
