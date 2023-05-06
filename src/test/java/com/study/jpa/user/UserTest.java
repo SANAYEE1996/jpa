@@ -1,6 +1,5 @@
 package com.study.jpa.user;
 
-import com.study.jpa.annotation.WithUser;
 import com.study.jpa.dto.UserLoginDto;
 import com.study.jpa.service.CustomUserDetailsService;
 import com.study.jpa.service.UserService;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.annotation.Rollback;
 
-import javax.transaction.Transactional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

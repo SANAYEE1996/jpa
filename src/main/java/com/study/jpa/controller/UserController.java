@@ -21,8 +21,9 @@ public class UserController {
 
     @PostMapping("/login")
     public TokenInfo login(@RequestBody UserLoginDto userLoginDto){
-        System.out.println("왜 여기까지 아농ㅁ>????");
-        return userService.login(userLoginDto.getUserEmail(), userLoginDto.getUserPassword());
+        TokenInfo tokenInfo = userService.login(userLoginDto.getUserEmail(), userLoginDto.getUserPassword());
+        System.out.println("아니 가져오기는 함?? : " +tokenInfo.getGrantType());
+        return tokenInfo;
     }
 
     @GetMapping("/test")
