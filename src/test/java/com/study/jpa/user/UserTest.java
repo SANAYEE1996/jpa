@@ -2,6 +2,7 @@ package com.study.jpa.user;
 
 import com.study.jpa.annotation.WithUser;
 import com.study.jpa.dto.UserLoginDto;
+import com.study.jpa.service.CustomUserDetailsService;
 import com.study.jpa.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,6 @@ import javax.transaction.Transactional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Transactional
 @Rollback(false)
 public class UserTest {
 
@@ -32,13 +32,17 @@ public class UserTest {
     @Autowired
     private UserService userService;
 
-    @DisplayName("login 한 상태로 url 요청 가능한지 테스트")
-    @WithUser("test01")
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
+    @DisplayName("login 테스트")
     @Test
     void loginTest(){
-        String testUrl = "http://localhost:"+port+"/user/test";
+        String testUrl = "http://localhost:"+port+"/user/login";
 
-        ResponseEntity<String> response = restTemplate.getForEntity(testUrl, String.class);
+        UserLoginDto userLoginDto = new UserLoginDto("test01","1234");
+
+        ResponseEntity<Object> response = restTemplate.postForEntity(testUrl, userLoginDto, Object.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -56,7 +60,7 @@ public class UserTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        UserDetails user = userService.loadUserByUsername(userLoginDto.getUserEmail());
+        UserDetails user = customUserDetailsService.loadUserByUsername(userLoginDto.getUserEmail());
 
         assertThat(user.getUsername()).isEqualTo(userLoginDto.getUserEmail());
     }

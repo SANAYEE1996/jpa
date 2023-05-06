@@ -21,6 +21,7 @@ public class UserController {
 
     @PostMapping("/login")
     public TokenInfo login(@RequestBody UserLoginDto userLoginDto){
+        System.out.println("왜 여기까지 아농ㅁ>????");
         return userService.login(userLoginDto.getUserEmail(), userLoginDto.getUserPassword());
     }
 
