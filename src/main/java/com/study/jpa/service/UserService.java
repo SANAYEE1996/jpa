@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,8 @@ public class UserService{
 
     private final JwtTokenProvider jwtTokenProvider;
 
+    private final PasswordEncoder passwordEncoder;
+
 
     @Transactional
     public TokenInfo login(String userEmail, String password){
@@ -36,13 +39,14 @@ public class UserService{
         // authenticate 매서드가 실행될 때 CustomUserDetailsService 에서 만든 loadUserByUsername 메서드가 실행
         try {
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            log.info("여기까지 안오면 authenticate가 문제");
             TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication);
             log.info("authentication getAuthorities: {}", authentication.getAuthorities());
             return tokenInfo;
         }catch (RuntimeException e){
+            e.printStackTrace();
             log.info("음");
         }
-        log.info("여기까지도 안옴... 대체 뭐가 문제지..");
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         return TokenInfo.builder().grantType("").accessToken("").refreshToken("").build();
     }

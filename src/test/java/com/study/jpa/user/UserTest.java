@@ -38,7 +38,7 @@ public class UserTest {
     void loginTest(){
         String testUrl = "http://localhost:"+port+"/user/login";
 
-        UserLoginDto userLoginDto = new UserLoginDto("test01","1234");
+        UserLoginDto userLoginDto = new UserLoginDto("dudtkd0219@gmail.com","1234");
 
         ResponseEntity<Object> response = restTemplate.postForEntity(testUrl, userLoginDto, Object.class);
 
