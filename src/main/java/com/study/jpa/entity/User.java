@@ -22,6 +22,10 @@ import java.util.stream.Collectors;
 public class User implements UserDetails {
 
     @Id
+    @Column
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "email")
     private String userEmail;
 

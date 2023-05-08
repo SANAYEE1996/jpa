@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,18 +27,14 @@ public class UserService{
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private final PasswordEncoder passwordEncoder;
-
 
     @Transactional
     public TokenInfo login(String userEmail, String password){
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userEmail, password);
-        // 2. 실제 검증 (사용자 비밀번호 체크)이 이루어지는 부분
-        // authenticate 매서드가 실행될 때 CustomUserDetailsService 에서 만든 loadUserByUsername 메서드가 실행
+
         try {
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            log.info("여기까지 안오면 authenticate가 문제");
             TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication);
             log.info("authentication getAuthorities: {}", authentication.getAuthorities());
             return tokenInfo;
@@ -47,17 +42,17 @@ public class UserService{
             e.printStackTrace();
             log.info("음");
         }
-        // 3. 인증 정보를 기반으로 JWT 토큰 생성
+
         return TokenInfo.builder().grantType("").accessToken("").refreshToken("").build();
     }
 
 
     public void saveUser(User user){
-        if(!userRepository.existsById(user.getUsername())){
-            userRepository.save(user);
-            return;
-        }
-        throw new RuntimeException("이미 등록된 이메일 입니다.");
+        log.info("여기 들어오기는 합니까?");
+        log.info(user.getUserEmail());
+        log.info(user.getUserPassword());
+        userRepository.save(user);
+        log.info("save 하는지 체크");
     }
 
 }
