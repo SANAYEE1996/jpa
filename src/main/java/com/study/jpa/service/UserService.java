@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,8 @@ public class UserService{
 
     private final JwtTokenProvider jwtTokenProvider;
 
+    private final PasswordEncoder passwordEncoder;
+
 
     @Transactional
     public TokenInfo login(String userEmail, String password){
@@ -40,19 +43,16 @@ public class UserService{
             return tokenInfo;
         }catch (RuntimeException e){
             e.printStackTrace();
-            log.info("음");
+            return TokenInfo.builder().message(e.getMessage()).build();
         }
-
-        return TokenInfo.builder().grantType("").accessToken("").refreshToken("").build();
     }
 
 
-    public void saveUser(User user){
-        log.info("여기 들어오기는 합니까?");
-        log.info(user.getUserEmail());
-        log.info(user.getUserPassword());
-        userRepository.save(user);
-        log.info("save 하는지 체크");
+    public void saveUser(String email, String password){
+        userRepository.save(User.builder()
+                                .userEmail(email)
+                                .userPassword(passwordEncoder.encode(password))
+                                .build());
     }
 
 }

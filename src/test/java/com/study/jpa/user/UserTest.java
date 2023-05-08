@@ -2,17 +2,18 @@ package com.study.jpa.user;
 
 import com.study.jpa.dto.UserLoginDto;
 import com.study.jpa.service.CustomUserDetailsService;
-import com.study.jpa.service.UserService;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.util.StringUtils;
 
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -28,23 +29,26 @@ public class UserTest {
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
     @DisplayName("login 테스트")
     @Test
-    void loginTest(){
+    void loginTest() throws JSONException {
         String testUrl = "http://localhost:"+port+"/user/login";
 
         UserLoginDto userLoginDto = new UserLoginDto("test01","1234");
 
-        ResponseEntity<Object> response = restTemplate.postForEntity(testUrl, userLoginDto, Object.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(testUrl, userLoginDto, String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        System.out.println(response.getBody());
+        JSONObject jsonObject = new JSONObject(response.getBody());
+        assertThat(jsonObject.getString("grantType")).isEqualTo("Bearer");
+        assertThat(StringUtils.hasText(jsonObject.getString("accessToken"))).isTrue();
+        assertThat(StringUtils.hasText(jsonObject.getString("refreshToken"))).isTrue();
+
+        System.out.println(jsonObject.getString("accessToken"));
+        System.out.println(jsonObject.getString("refreshToken"));
     }
     
     @DisplayName("회원 가입 테스트")
@@ -54,8 +58,6 @@ public class UserTest {
 
         UserLoginDto userLoginDto = new UserLoginDto("test01","1234");
 
-        System.out.println("회원 가입할 비밀 번호 : "+userLoginDto.getUserPassword());
-
         ResponseEntity<String> response = restTemplate.postForEntity(testUrl, userLoginDto,String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -63,5 +65,24 @@ public class UserTest {
         UserDetails user = customUserDetailsService.loadUserByUsername(userLoginDto.getUserEmail());
 
         assertThat(user.getUsername()).isEqualTo(userLoginDto.getUserEmail());
+    }
+
+    @DisplayName("로그인 하고 발급된 bearer token으로 다른 api 접속 가능한지 테스트")
+    @Test
+    void LoginAndAccessAuthenticatedAPITest() throws JSONException {
+        String loginUrl = "http://localhost:"+port+"/user/login";
+
+        UserLoginDto userLoginDto = new UserLoginDto("test01","1234");
+
+        ResponseEntity<String> response = restTemplate.postForEntity(loginUrl, userLoginDto, String.class);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(new JSONObject(response.getBody()).getString("accessToken"));
+        String testUrl = "http://localhost:"+port+"/user/test";
+
+        response = restTemplate.exchange(testUrl, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo("success");
     }
 }
