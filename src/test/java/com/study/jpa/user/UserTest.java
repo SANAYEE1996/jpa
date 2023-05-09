@@ -16,6 +16,9 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.util.StringUtils;
 
 
+import java.util.HashMap;
+import java.util.Objects;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -69,20 +72,24 @@ public class UserTest {
 
     @DisplayName("로그인 하고 발급된 bearer token으로 다른 api 접속 가능한지 테스트")
     @Test
-    void LoginAndAccessAuthenticatedAPITest() throws JSONException {
+    void LoginAndAccessAuthenticatedAPITest(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(getToken());
+        String testUrl = "http://localhost:"+port+"/user/test";
+
+        ResponseEntity<String> response = restTemplate.exchange(testUrl, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo("success");
+    }
+
+    private String getToken(){
         String loginUrl = "http://localhost:"+port+"/user/login";
 
         UserLoginDto userLoginDto = new UserLoginDto("test01","1234");
 
-        ResponseEntity<String> response = restTemplate.postForEntity(loginUrl, userLoginDto, String.class);
+        ResponseEntity<HashMap> response = restTemplate.postForEntity(loginUrl, userLoginDto, HashMap.class);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(new JSONObject(response.getBody()).getString("accessToken"));
-        String testUrl = "http://localhost:"+port+"/user/test";
-
-        response = restTemplate.exchange(testUrl, HttpMethod.GET, new HttpEntity<>(headers), String.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo("success");
+        return Objects.requireNonNull(response.getBody()).get("accessToken").toString();
     }
 }
