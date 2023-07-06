@@ -6,7 +6,7 @@ import com.study.jpa.exception.QuantitySoldOutException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity(name = "product")
 @Getter
